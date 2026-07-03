@@ -1,0 +1,95 @@
+/* ═══════════════════════════════════════════════════════
+   THEME — CSS custom properties
+   Red security palette · Apple system font · Light + Dark
+═══════════════════════════════════════════════════════ */
+
+:root {
+  --font:      -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+
+  --bg:         #ffffff;
+  --bg-raised:  #f5f5f7;
+  --bg-surface: #ebebed;
+  --bg-hover:   #dedede;
+  --bg-active:  #d0d0d3;
+
+  --border:    rgba(0,0,0,0.08);
+  --border-md: rgba(0,0,0,0.13);
+  --border-lg: rgba(0,0,0,0.20);
+
+  --blue:       #cc0000;
+  --blue-dark:  #990000;
+  --blue-light: #e63333;
+  --blue-glow:  rgba(204,0,0,0.18);
+  --blue-bg:    rgba(204,0,0,0.07);
+  --blue-bg-md: rgba(204,0,0,0.13);
+
+  --text-primary:   #1d1d1f;
+  --text-secondary: #6e6e73;
+  --text-tertiary:  #98989d;
+  --text-inverse:   #ffffff;
+
+  --c-critical: #d70015;
+  --c-high:     #e05000;
+  --c-medium:   #e08500;
+  --c-low:      #28a745;
+  --c-news:     #98989d;
+  --c-info:     #5ac8fa;
+
+  --green:  #28a745;
+  --yellow: #e08500;
+  --red:    #d70015;
+
+  --radius:    10px;
+  --radius-sm: 6px;
+  --radius-lg: 16px;
+  --tr:        0.15s ease;
+
+  --shadow-sm:    0 1px 4px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.06);
+  --shadow-md:    0 4px 16px rgba(0,0,0,0.10), 0 0 0 0.5px rgba(0,0,0,0.06);
+  --shadow-lg:    0 12px 40px rgba(0,0,0,0.14);
+  --shadow-panel: -8px 0 32px rgba(0,0,0,0.12);
+}
+
+/* ── DARK MODE ─────────────────────────────────────────── */
+[data-theme="dark"] {
+  /* Pure blacks — no red tint */
+  --bg:         #000000;
+  --bg-raised:  #0d0d0d;
+  --bg-surface: #141414;
+  --bg-hover:   #1c1c1c;
+  --bg-active:  #222222;
+
+  --border:    rgba(255,255,255,0.09);
+  --border-md: rgba(255,255,255,0.15);
+  --border-lg: rgba(255,255,255,0.22);
+
+  --blue:       #ff4040;
+  --blue-dark:  #ff6666;
+  --blue-light: #ff7777;
+  --blue-glow:  rgba(255,64,64,0.22);
+  --blue-bg:    rgba(255,64,64,0.09);
+  --blue-bg-md: rgba(255,64,64,0.16);
+
+  /* High-contrast text — readable on pure black */
+  --text-primary:   #f0f0f0;
+  --text-secondary: #b0b0b0;
+  --text-tertiary:  #666666;
+  --text-inverse:   #000000;
+
+  --c-critical: #ff3b30;
+  --c-high:     #ff7a40;
+  --c-medium:   #ffbe30;
+  --c-low:      #34d058;
+  --c-news:     #555555;
+  --c-info:     #64d2ff;
+
+  --green:  #34d058;
+  --yellow: #ffbe30;
+  --red:    #ff3b30;
+
+  --shadow-sm:    0 1px 4px rgba(0,0,0,0.50);
+  --shadow-md:    0 4px 20px rgba(0,0,0,0.70);
+  --shadow-lg:    0 12px 48px rgba(0,0,0,0.85);
+  --shadow-panel: -8px 0 40px rgba(0,0,0,0.80);
+}

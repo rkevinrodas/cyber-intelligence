@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+
+# Dependencies
+node_modules/
+
+# Build output (adjust to match your config)
+dist/
+dist-electron/
+release/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Local environment secrets
+.env
+.env.local
+
+# App focused files
+Launch CyberIntelligence.bat
+Launch CyberIntelligence.command

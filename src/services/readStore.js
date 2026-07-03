@@ -1,0 +1,58 @@
+// src/services/readStore.js
+// Manages the read/unread state for threat records.
+// Stored in localStorage as a JSON-encoded Set of IDs.
+// Kept separate from IndexedDB to avoid schema migrations.
+
+const STORAGE_KEY = 'ci_read_ids';
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return new Set(Array.isArray(arr) ? arr : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function save(set) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify([...set]));
+  } catch { /* storage full — silent */ }
+}
+
+export function isRead(id) {
+  return load().has(String(id));
+}
+
+export function markRead(id) {
+  if (!id) return;
+  const s = load();
+  s.add(String(id));
+  save(s);
+}
+
+export function markUnread(id) {
+  if (!id) return;
+  const s = load();
+  s.delete(String(id));
+  save(s);
+}
+
+export function toggleRead(id) {
+  if (!id) return;
+  const s = load();
+  s.has(String(id)) ? s.delete(String(id)) : s.add(String(id));
+  save(s);
+  return s.has(String(id));
+}
+
+export function getReadSet() {
+  return load();
+}
+
+export function countUnread(threats) {
+  if (!Array.isArray(threats)) return 0;
+  const s = load();
+  return threats.filter(t => !s.has(String(t.id))).length;
+}
