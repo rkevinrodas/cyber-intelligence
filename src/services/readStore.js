@@ -5,11 +5,20 @@
 
 const STORAGE_KEY = 'ci_read_ids';
 
+// Prototype-pollution-safe parse: drops __proto__/constructor/prototype
+// keys and enforces that the result is an array of strings only.
+const FORBIDDEN_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+
 function load() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    const arr = raw ? JSON.parse(raw) : [];
-    return new Set(Array.isArray(arr) ? arr : []);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw, (key, value) =>
+      FORBIDDEN_KEYS.has(key) ? undefined : value
+    );
+    if (!Array.isArray(arr)) return new Set();
+    // Only string IDs are valid — silently drop anything else
+    return new Set(arr.filter(v => typeof v === 'string'));
   } catch {
     return new Set();
   }

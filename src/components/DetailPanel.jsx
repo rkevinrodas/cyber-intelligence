@@ -8,6 +8,17 @@ import { getReadSet } from '../services/readStore.js';
 import { XIcon, ExternalLinkIcon, CopyIcon, TrashIcon } from '../assets/icons.jsx';
 import Tooltip from './Tooltip.jsx';
 
+// ── URL scheme guard ─────────────────────────────────────
+// Feed-derived URLs (t.link, references) are untrusted input.
+// React does NOT block javascript: URIs in href — this does.
+// Enrichment links are app-constructed and safe, but we guard
+// every external href uniformly for defense in depth.
+function safeHref(u) {
+  if (typeof u !== 'string') return null;
+  const trimmed = u.trim();
+  return /^https?:\/\//i.test(trimmed) ? trimmed : null;
+}
+
 const SEV_COLORS = {
   critical: 'var(--c-critical)',
   high:     'var(--c-high)',
@@ -61,7 +72,7 @@ function IocRow({ ioc }) {
         {links.map(l => (
           <Tooltip key={l.label} tip={`Investigate on ${l.label}`} placement="bottom">
             <a
-              href={l.url}
+              href={safeHref(l.url) ?? '#'}
               target="_blank"
               rel="noopener noreferrer"
               className="ioc-action-btn"
@@ -369,11 +380,11 @@ export default function DetailPanel() {
         <div style={{ flex:1, overflowY:'auto', padding:'20px 24px', display:'flex', flexDirection:'column', gap:20 }}>
 
           {/* Source link */}
-          {t?.link && (
+          {safeHref(t?.link) && (
             <div>
               <div className="panel-section-title">Original Source</div>
               <a
-                href={t.link}
+                href={safeHref(t.link)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="source-link-banner"
@@ -605,8 +616,8 @@ export default function DetailPanel() {
           {(t?.references ?? []).length > 0 && (
             <div>
               <div className="panel-section-title">External References</div>
-              {t.references.map((r, i) => (
-                <a key={i} href={r} target="_blank" rel="noopener noreferrer"
+              {t.references.filter(r => safeHref(r)).map((r, i) => (
+                <a key={i} href={safeHref(r)} target="_blank" rel="noopener noreferrer"
                   style={{ display:'block', fontSize:12, color:'var(--blue)', marginBottom:6, wordBreak:'break-all', opacity:0.85 }}>
                   ↗ {r.length > 90 ? r.slice(0, 90) + '…' : r}
                 </a>
@@ -638,9 +649,9 @@ export default function DetailPanel() {
               {isRead ? '○ Mark Unread' : '● Mark Read'}
             </button>
           </Tooltip>
-          {t?.link && (
+          {safeHref(t?.link) && (
             <a
-              href={t.link}
+              href={safeHref(t.link)}
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-secondary btn-sm"

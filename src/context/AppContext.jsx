@@ -14,11 +14,29 @@ import { markRead as doMarkRead, markUnread as doMarkUnread,
 
 const ALL_FEED_KEYS = Object.keys(FEEDS);
 
+// ── Prototype-pollution-safe JSON parse ───────────────────
+// JSON.parse with a reviver that drops __proto__ / constructor /
+// prototype keys. Prevents a poisoned localStorage blob like
+// {"__proto__":{"isAdmin":true}} from polluting Object.prototype
+// when the result is later spread or merged into app state.
+const FORBIDDEN_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+
+export function safeJsonParse(raw, fallback) {
+  if (typeof raw !== 'string' || raw.length === 0) return fallback;
+  try {
+    return JSON.parse(raw, (key, value) =>
+      FORBIDDEN_KEYS.has(key) ? undefined : value
+    );
+  } catch {
+    return fallback;
+  }
+}
+
 // ── Settings loader with full validation ──────────────────
 function loadSettings() {
   try {
     const raw = localStorage.getItem('ci_settings');
-    const s   = raw ? JSON.parse(raw) : {};
+    const s   = safeJsonParse(raw, {});
     if (typeof s !== 'object' || s === null) throw new Error('invalid');
     return {
       theme:            typeof s.theme === 'string'            ? s.theme            : 'dark',
@@ -26,7 +44,10 @@ function loadSettings() {
       defaultSevFilter: typeof s.defaultSevFilter === 'string' ? s.defaultSevFilter : 'all',
       autoSyncEnabled:  typeof s.autoSyncEnabled === 'boolean' ? s.autoSyncEnabled  : false,
       syncTime:         typeof s.syncTime === 'string'         ? s.syncTime         : '08:00',
-      retentionDays:    typeof s.retentionDays === 'number'    ? s.retentionDays    : 90,
+      retentionDays:    (typeof s.retentionDays === 'number' &&
+                         Number.isFinite(s.retentionDays) &&
+                         s.retentionDays >= 7 && s.retentionDays <= 365)
+                          ? Math.floor(s.retentionDays) : 90,
     };
   } catch {
     return { theme: 'dark', timezone: 'UTC', defaultSevFilter: 'all',
@@ -37,7 +58,7 @@ function loadSettings() {
 function loadEnabledFeeds() {
   try {
     const raw   = localStorage.getItem('ci_enabled_feeds');
-    const saved = raw ? JSON.parse(raw) : null;
+    const saved = safeJsonParse(raw, null);
     if (Array.isArray(saved) && saved.length > 0) return new Set(saved);
   } catch { /* fall through */ }
   return new Set(ALL_FEED_KEYS);
@@ -417,9 +438,7 @@ export function AppProvider({ children }) {
           return `"${String(v).replace(/"/g, '""')}"`;
         }).join(',')
       );
-      const blob = new Blob([HDR.join(',') + '
-' + rows.join('
-')], { type: 'text/csv' });
+      const blob = new Blob([HDR.join(',') + '\n' + rows.join('\n')], { type: 'text/csv' });
       const a    = document.createElement('a');
       a.href     = URL.createObjectURL(blob);
       const tag  = state.sevFilter !== 'all' ? `-${state.sevFilter}` : '';
